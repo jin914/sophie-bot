@@ -1,0 +1,13 @@
+{
+    "name": "sophie-bot",
+    "version": "1.0.0",
+    "description": "translates chinese to english",
+    "main": "bot.js",
+    "author": "Kazdingle",
+    "dependencies": {
+        "@google-cloud/translate": "^5.3.0",
+        "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+        "google-translate": "^3.0.0",
+        "winston": "^3.2.1"
+    }
+}
