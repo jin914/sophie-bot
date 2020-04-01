@@ -59,35 +59,36 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     
                     var text = original;
 
-                    var lang = await detectLanguage(text);
-                    if (lang == undefined) {
-                        bot.sendMessage({
-                            to: channelID,
-                            message: "Error when detecting language"
-                        });
-                    }
-                    else if (lang == "en") {
-                        //if input is english then translate into Chinese
-                        console.log("English :>",text);
-                        googleTranslate.translate(text, 'zh', function(err, translation) {
-                            var returnmessage = ("Chinese :>",translation.translatedText);
-                              bot.sendMessage({
-                                  to: channelID,
-                                  message: returnmessage
+                    detectLanguage(text).then((lang) => {
+                        if (lang == undefined) {
+                            bot.sendMessage({
+                                to: channelID,
+                                message: "Error when detecting language"
+                            });
+                        }
+                        else if (lang == "en") {
+                            //if input is english then translate into Chinese
+                            console.log("English :>",text);
+                            googleTranslate.translate(text, 'zh', function(err, translation) {
+                                var returnmessage = ("Chinese :>",translation.translatedText);
+                                  bot.sendMessage({
+                                      to: channelID,
+                                      message: returnmessage
+                                  });
                               });
-                          });
-                    }
-                    else {
-                        // translate any other language into English
-                        console.log("Chinese (Simplified) :>",text);
-                        googleTranslate.translate(text, 'en', function(err, translation) {
-                            var returnmessage = ("English :>",translation.translatedText);
-                              bot.sendMessage({
-                                  to: channelID,
-                                  message: returnmessage
+                        }
+                        else {
+                            // translate any other language into English
+                            console.log("Chinese (Simplified) :>",text);
+                            googleTranslate.translate(text, 'en', function(err, translation) {
+                                var returnmessage = ("English :>",translation.translatedText);
+                                  bot.sendMessage({
+                                      to: channelID,
+                                      message: returnmessage
+                                  });
                               });
-                          });
-                    }
+                        }
+                    });
 	
                 }
                 
