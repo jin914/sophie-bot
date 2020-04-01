@@ -55,20 +55,39 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 }
                 else{
                     
-                    var text = original
-                    console.log("Chinese (Simplified) :>",text);
-                    
-                    googleTranslate.translate(text, 'en', function(err, translation) {
-                      var returnmessage = ("English :>",translation.translatedText);
+                    var text = original;
+                    if (detectLanguage(text) == undefined) {
                         bot.sendMessage({
                             to: channelID,
-                            message: returnmessage
+                            message: "Error when detecting language"
                         });
-                    });		
+                    }
+                    else if (detectLanguage(text) == "en") {
+                        //if input is english then translate into Chinese
+                        console.log("English :>",text);
+                        googleTranslate.translate(text, 'zh', function(err, translation) {
+                            var returnmessage = ("Chinese :>",translation.translatedText);
+                              bot.sendMessage({
+                                  to: channelID,
+                                  message: returnmessage
+                              });
+                          });
+                    }
+                    else {
+                        // translate any other language into English
+                        console.log("Chinese (Simplified) :>",text);
+                        googleTranslate.translate(text, 'en', function(err, translation) {
+                            var returnmessage = ("English :>",translation.translatedText);
+                              bot.sendMessage({
+                                  to: channelID,
+                                  message: returnmessage
+                              });
+                          });
+                    }
+	
                 }
                 
                 break;
-            break;
             // Just add any case commands if you want to..
          }
      }else{
@@ -80,3 +99,16 @@ bot.on('message', function (user, userID, channelID, message, evt) {
          }
      }
 });
+
+// Detects the language. "text" can be a string for detecting the language of
+// a single piece of text, or an array of strings for detecting the languages
+// of multiple texts.
+async function detectLanguage(text) {
+    let [detections] = await googleTranslate.detect(text);
+    detections = Array.isArray(detections) ? detections : [detections];
+    
+    if (detections.length > 0) {
+        return detections[0].language; //return the most detected language 
+    }
+    return undefined;
+}
