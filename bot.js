@@ -1,8 +1,10 @@
 var Discord = require('discord.io');
 var logger = require('winston');
 var auth = require('./auth.json');
-var api = "${YOUR_API_KEY_HERE}";
+var api = "";
 var googleTranslate = require('google-translate')(api);
+const {Translate} = require('@google-cloud/translate').v2;
+const translateClient = new Translate();
 
 // Configure logger settings
 logger.remove(logger.transports.Console);
@@ -67,7 +69,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     else if (lang == "en") {
                         //if input is english then translate into Chinese
                         console.log("English :>",text);
-                        googleTranslate.translate(text, 'zh-cn', function(err, translation) {
+                        googleTranslate.translate(text, 'zh', function(err, translation) {
                             var returnmessage = ("Chinese :>",translation.translatedText);
                               bot.sendMessage({
                                   to: channelID,
@@ -106,7 +108,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
 // a single piece of text, or an array of strings for detecting the languages
 // of multiple texts.
 async function detectLanguage(text) {
-    let [detections] = await googleTranslate.detect(text);
+    let [detections] = await translateClient.detect(text);
     detections = Array.isArray(detections) ? detections : [detections];
     
     if (detections.length > 0) {
