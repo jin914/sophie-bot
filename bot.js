@@ -11,18 +11,27 @@ const googleApiKey = credentials.googleApiKey;
 
 const Translate = gtClass.v2.Translate;
 const googleTranslate = gt(googleApiKey);
-const translateClient = new Translate({ key: googleApiKey });
+const projectID = "sapient-notch-272806";
+const translateClient = new Translate({key: googleApiKey, projectID: projectID});
 
-const users = [{ 'name': 'buiisabella', 'stars': 'pisces', 'birthday': 'February 21' },
-    { 'name': 'maddymq', 'stars': 'pisces', 'birthday': 'March 11' },
-    { 'name': 'Majestix', 'stars': 'gemini', 'birthday': 'June 13' },
-    { 'name': 'kazdingle', 'stars': 'cancer', 'birthday': 'July 8' },
-    { 'name': 'amblypygid', 'stars': 'libra', 'birthday': 'September 30' },
-    { 'name': 'direangelz', 'stars': 'aries', 'birthday': 'April 2' },
-    { 'name': 's0ph1e.wu', 'stars': 'libra', 'birthday': 'October 21' },
-    { 'name': 'Wontongss', 'stars': 'leo', 'birthday': 'August 20' },
-    { 'name': 'zoevstheworld', 'stars': 'pisces', 'birthday': 'March 9' },
-    { name: 'synapses', stars: 'scorpio', birthday: 'March 9' }];
+
+var users = [{ 'name': 'buiisabella', 'stars': 'pisces', 'birthday': 'February 21' },
+            { 'name': 'maddymq', 'stars': 'pisces', 'birthday': 'March 11' },
+            { 'name': 'Majestix', 'stars': 'gemini', 'birthday': 'June 13' },
+            { 'name': 'kazdingle', 'stars': 'cancer', 'birthday': 'July 8' },
+            { 'name': 'amblypygid', 'stars': 'libra', 'birthday': 'September 30' },
+            { 'name': 'direangelz', 'stars': 'aries', 'birthday': 'April 2' },
+            { 'name': 's0ph1e.wu', 'stars': 'libra', 'birthday': 'October 21' },
+            { 'name': 'Wontongss', 'stars': 'leo', 'birthday': 'August 20' },
+            { 'name': 'zoevstheworld', 'stars': 'pisces', 'birthday': 'March 9' },
+            { 'name': 'synapses', 'stars': 'scorpio', 'birthday': 'November 20' }];
+
+// Configure logger settings
+logger.remove(logger.transports.Console);
+logger.add(new logger.transports.Console, {
+    colorize: true
+});
+logger.level = 'debug';
 
 // Initialize Discord Bot
 const bot = new Discord.Client({
@@ -81,7 +90,7 @@ bot.on('message', (user, userID, channelID, message) => {
 
                         bot.sendMessage({
                             to: channelID,
-                            message: `Hello ${username.name}, here is today's horoscope for ${star}!
+                            message: `Hello ${username.name}, here is ${star}'s horoscope for today!
                             \nIt's ${date.format("dddd, MMMM Do YYYY")}. ${json['horoscope']}`
                         });
                     })
@@ -106,35 +115,34 @@ bot.on('message', (user, userID, channelID, message) => {
                             to: channelID,
                             message: "Error when detecting language"
                         });
-                    } else if(lang === "en") {
-                        //if input is english then translate into Chinese
-                        console.log("English :>", text);
-
-                        googleTranslate.translate(text, 'zh-cn', function(err, translation) {
-                            if(err)
-                                console.log(err);
-
-                            bot.sendMessage({
-                                to: channelID,
-                                message: `Chinese :> ${translation.translatedText}`
-                            });
-                        });
-                    } else {
-                        // translate any other language into English
-                        console.log("Chinese (Simplified) :>", text);
-
-                        googleTranslate.translate(text, 'en', function(err, translation) {
-                            if(err)
-                                console.log(err);
-
-                            bot.sendMessage({
-                                to: channelID,
-                                message: `English :> ${translation.translatedText}`
-                            });
-                        });
-                    }
-                });
-
+                    } else if (lang == "en") {
+                            //if input is english then translate into Chinese
+                            googleTranslate.translate(text, 'zh-cn', function(err, translation) {
+                              if(err)
+                                  console.log(err);
+                              
+                              var returnmessage = ("Chinese :>",translation.translatedText);
+                                  bot.sendMessage({
+                                      to: channelID,
+                                      message: returnmessage
+                                  });
+                              });
+                        }
+                        else {
+                            // translate any other language into English
+                            googleTranslate.translate(text, 'en', function(err, translation) {
+                                if(err)
+                                    console.log(err);
+                                var returnmessage = ("English :>",translation.translatedText);
+                                  bot.sendMessage({
+                                      to: channelID,
+                                      message: returnmessage
+                                  });
+                              });
+                        }
+                    });
+	
+                }
                 break;
             // Just add any case commands if you want to..
         }
