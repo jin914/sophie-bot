@@ -14,7 +14,7 @@ const googleApiKey = credentials.googleApiKey;
 const Translate = gtClass.v2.Translate;
 const googleTranslate = gt(googleApiKey);
 const projectID = "sapient-notch-272806";
-const translateClient = new Translate({key: api, projectID: projectID});
+const translateClient = new Translate({key: googleApiKey, projectID: projectID});
 
 
 var users = [{ 'name': 'buiisabella', 'stars': 'pisces', 'birthday': 'February 21' },
