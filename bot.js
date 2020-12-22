@@ -1,23 +1,30 @@
-var Discord = require('discord.io');
-var logger = require('winston');
-const fetch = require("node-fetch");
-var discord_auth = require('./auth.json');
-const {auth} = require('google-auth-library');
+import Discord from 'discord.io';
+import logger from 'winston';
+import fetch from 'node-fetch';
+import auth from 'google-auth-library';
+import * as fs from 'fs';
+import gt from 'google-translate';
+import gtClass from '@google-cloud/translate';
+import moment from 'moment';
+
+const discord_auth = JSON.parse(fs.readFileSync('./auth.json', 'utf8'));
+
+const Translate = gtClass.v2.Translate;
 const api = "";
+const googleTranslate = gt(api);
 const projectID = "sapient-notch-272806";
-var googleTranslate = require('google-translate')(api);
-const {Translate} = require('@google-cloud/translate').v2;
 const translateClient = new Translate({projectID});
 
-var users = [{'name': 'buiisabella', 'stars':'pisces', 'birthday':'February 21'}, 
-            {'name':'maddymq', 'stars': 'pisces', 'birthday':'March 11'}, 
-            {'name':'Majestix', 'stars': 'gemini', 'birthday':'June 13'}, 
-            {'name':'kazdingle', 'stars':'cancer', 'birthday':'July 8'}, 
-            {'name':'amblypygid','stars':'libra', 'birthday': 'September 30'}, 
-            {'name':'direangelz', 'stars': 'aries', 'birthday': 'April 2'}, 
-            {'name':'s0ph1e.wu', 'stars':'libra', 'birthday': 'October 21'}, 
-            {'name':'Wontongss', 'stars':'leo', 'birthday':'August 20'}, 
-            {'name':'zoevstheworld','stars': 'pisces', 'birthday':'March 9'}]
+var users = [{ 'name': 'buiisabella', 'stars': 'pisces', 'birthday': 'February 21' },
+            { 'name': 'maddymq', 'stars': 'pisces', 'birthday': 'March 11' },
+            { 'name': 'Majestix', 'stars': 'gemini', 'birthday': 'June 13' },
+            { 'name': 'kazdingle', 'stars': 'cancer', 'birthday': 'July 8' },
+            { 'name': 'amblypygid', 'stars': 'libra', 'birthday': 'September 30' },
+            { 'name': 'direangelz', 'stars': 'aries', 'birthday': 'April 2' },
+            { 'name': 's0ph1e.wu', 'stars': 'libra', 'birthday': 'October 21' },
+            { 'name': 'Wontongss', 'stars': 'leo', 'birthday': 'August 20' },
+            { 'name': 'zoevstheworld', 'stars': 'pisces', 'birthday': 'March 9' },
+            { name: 'synapses', stars: 'scorpio', birthday: 'March 9' }];
 
 // Configure logger settings
 logger.remove(logger.transports.Console);
@@ -64,19 +71,28 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 });
                 break;
             case 'stars':
-                const username = users.find(o => o.name == user)
-                const star = username['stars']
+                const username = users.find(o => o.name === user);
+
+                if(!username) {
+                    bot.sendMessage({
+                        to: channelID,
+                        message: `sorry, <@${userID}> - I don't know who you are`
+                    });
+
+                    return;
+                }
+
+                const star = username['stars'];
 
                 fetch(`http://horoscope-api.herokuapp.com/horoscope/today/${star}`)
                     .then(res => res.json())
                     .then(json => {
-                        var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                        var d = new Date(json['date']);
-                        var date = d.toLocaleDateString("en-US", options); 
+                        var date = new moment(json.date);
+
                         bot.sendMessage({
                             to: channelID,
                             message: `Hello ${username.name}, here is today's horoscope for ${star}!
-                            \nIt's ${date}. ${json['horoscope']}`
+                            \nIt's ${date.format("dddd, MMMM Do YYYY")}. ${json['horoscope']}`
                         });
                 })
                 
