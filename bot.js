@@ -26,13 +26,6 @@ var users = [{ 'name': 'buiisabella', 'stars': 'pisces', 'birthday': 'February 2
             { 'name': 'zoevstheworld', 'stars': 'pisces', 'birthday': 'March 9' },
             { 'name': 'synapses', 'stars': 'scorpio', 'birthday': 'November 20' }];
 
-// Configure logger settings
-logger.remove(logger.transports.Console);
-logger.add(new logger.transports.Console, {
-    colorize: true
-});
-logger.level = 'debug';
-
 // Initialize Discord Bot
 const bot = new Discord.Client({
     token: discord_auth.token,
@@ -49,10 +42,8 @@ bot.on('message', (user, userID, channelID, message) => {
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
     if(message.substring(0, 1) === '!') {
-        const i = message.indexOf(' ');
         let args = message.substring(1).split(' ');
         const cmd = args[0];
-        const original = message.slice(i + 1, message.length).trim();
 
         args = args.splice(1);
 
@@ -98,14 +89,15 @@ bot.on('message', (user, userID, channelID, message) => {
                 break;
             // !translate "chinese"
             case 'translate':
-                if(!original) {
+                if(message=="!translate") {
                     return bot.sendMessage({
                         to: channelID,
                         message: "Need more parameters"
                     });
+                    break;
                 }
-
-                const text = original;
+                var i = message.indexOf(' ');
+                const text = message.slice(i + 1, message.length).trim();
 
                 detectLanguage(text).then(lang => {
                     console.log(`Lang: ${lang}`);
@@ -113,36 +105,34 @@ bot.on('message', (user, userID, channelID, message) => {
                     if(!lang) {
                         bot.sendMessage({
                             to: channelID,
-                            message: "Error when detecting language"
+                            message: "English :>Error when detecting language"
                         });
                     } else if (lang == "en") {
-                            //if input is english then translate into Chinese
-                            googleTranslate.translate(text, 'zh-cn', function(err, translation) {
-                              if(err)
-                                  console.log(err);
-                              
-                              var returnmessage = ("Chinese :>",translation.translatedText);
-                                  bot.sendMessage({
-                                      to: channelID,
-                                      message: returnmessage
-                                  });
-                              });
-                        }
-                        else {
-                            // translate any other language into English
-                            googleTranslate.translate(text, 'en', function(err, translation) {
-                                if(err)
-                                    console.log(err);
-                                var returnmessage = ("English :>",translation.translatedText);
-                                  bot.sendMessage({
-                                      to: channelID,
-                                      message: returnmessage
-                                  });
-                              });
-                        }
-                    });
-	
-                }
+                        //if input is english then translate into Chinese
+                        googleTranslate.translate(text, 'zh-cn', function(err, translation) {
+                            if(err)
+                                console.log(err);
+
+                            var returnmessage = ("Chinese :>",translation.translatedText);
+                            bot.sendMessage({
+                                to: channelID,
+                                message: returnmessage
+                            });
+                        });
+                    } else {
+                        // translate any other language into English
+                        googleTranslate.translate(text, 'en', function(err, translation) {
+                            if(err)
+                                console.log(err);
+
+                            var returnmessage = ("English :>",translation.translatedText);
+                            bot.sendMessage({
+                                to: channelID,
+                                message: returnmessage
+                            });
+                        });
+                    }
+                });
                 break;
             // Just add any case commands if you want to..
         }
