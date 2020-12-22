@@ -13,7 +13,7 @@ const Translate = gtClass.v2.Translate;
 const api = "";
 const googleTranslate = gt(api);
 const projectID = "sapient-notch-272806";
-const translateClient = new Translate({projectID});
+const translateClient = new Translate({key: api, projectID: projectID});
 
 var users = [{ 'name': 'buiisabella', 'stars': 'pisces', 'birthday': 'February 21' },
             { 'name': 'maddymq', 'stars': 'pisces', 'birthday': 'March 11' },
@@ -24,7 +24,7 @@ var users = [{ 'name': 'buiisabella', 'stars': 'pisces', 'birthday': 'February 2
             { 'name': 's0ph1e.wu', 'stars': 'libra', 'birthday': 'October 21' },
             { 'name': 'Wontongss', 'stars': 'leo', 'birthday': 'August 20' },
             { 'name': 'zoevstheworld', 'stars': 'pisces', 'birthday': 'March 9' },
-            { name: 'synapses', stars: 'scorpio', birthday: 'March 9' }];
+            { 'name': 'synapses', 'stars': 'scorpio', 'birthday': 'November 20' }];
 
 // Configure logger settings
 logger.remove(logger.transports.Console);
@@ -91,7 +91,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
 
                         bot.sendMessage({
                             to: channelID,
-                            message: `Hello ${username.name}, here is today's horoscope for ${star}!
+                            message: `Hello ${username.name}, here is ${star}'s horoscope for today!
                             \nIt's ${date.format("dddd, MMMM Do YYYY")}. ${json['horoscope']}`
                         });
                 })
@@ -114,7 +114,6 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                         }
                         else if (lang == "en") {
                             //if input is english then translate into Chinese
-                            console.log("English :>",text);
                             googleTranslate.translate(text, 'zh-cn', function(err, translation) {
                                 var returnmessage = ("Chinese :>",translation.translatedText);
                                   bot.sendMessage({
@@ -125,8 +124,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                         }
                         else {
                             // translate any other language into English
-                            console.log("Chinese (Simplified) :>",text);
-                            googleTranslate.translate(text, 'en-us', function(err, translation) {
+                            googleTranslate.translate(text, 'en', function(err, translation) {
                                 var returnmessage = ("English :>",translation.translatedText);
                                   bot.sendMessage({
                                       to: channelID,
