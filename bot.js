@@ -1,7 +1,5 @@
 import Discord from 'discord.io';
-import logger from 'winston';
 import fetch from 'node-fetch';
-import auth from 'google-auth-library';
 import * as fs from 'fs';
 import gt from 'google-translate';
 import gtClass from '@google-cloud/translate';
@@ -34,35 +32,39 @@ logger.add(new logger.transports.Console, {
     colorize: true
 });
 logger.level = 'debug';
+
 // Initialize Discord Bot
-var bot = new Discord.Client({
-   token: discord_auth.token,
-   autorun: true
+const bot = new Discord.Client({
+    token: discord_auth.token,
+    autorun: true
 });
-bot.on('ready', function (evt) {
-    logger.info('Connected');
-    logger.info('Logged in as: ');
-    logger.info(bot.username + ' - (' + bot.id + ')');
+
+bot.on('ready', _ => {
+    console.log("Connected");
+    console.log("Logged in as:");
+    console.log(`${bot.username} - (${bot.id})`);
 });
-bot.on('message', function (user, userID, channelID, message, evt) {
+
+bot.on('message', (user, userID, channelID, message) => {
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
-    if (message.substring(0, 1) == '!') {
-        var i = message.indexOf(' ');
-        var args = message.substring(1).split(' ');
-        var cmd = args[0];
-        var original = message.slice(i + 1, message.length).trim();
-        var returnmessage = "";
-       
+    if(message.substring(0, 1) === '!') {
+        const i = message.indexOf(' ');
+        let args = message.substring(1).split(' ');
+        const cmd = args[0];
+        const original = message.slice(i + 1, message.length).trim();
+
         args = args.splice(1);
+
         switch(cmd) {
             // !help
             case 'help':
                 bot.sendMessage({
                     to: channelID,
                     message: 'Here are some commands you can ask me:'
-                            + '\n !ping - I\'ll respond back with pong!'
-                            + '\n !translate text - I\'ll translate your text from Chinese to English.'
+                        + '\n !ping - I\'ll respond back with pong!'
+                        + '\m !stars - I\'ll get you today\'s horoscope'
+                        + '\n !translate text - I\'ll translate your text from Chinese to English.'
                 });
                 break;
             // !ping
@@ -75,49 +77,51 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             case 'stars':
                 const username = users.find(o => o.name === user);
 
-                if(!username) {
-                    bot.sendMessage({
+                if(!username)
+                    return bot.sendMessage({
                         to: channelID,
                         message: `sorry, <@${userID}> - I don't know who you are`
                     });
 
-                    return;
-                }
-
-                const star = username['stars'];
-
-                fetch(`http://horoscope-api.herokuapp.com/horoscope/today/${star}`)
+                fetch(`http://horoscope-api.herokuapp.com/horoscope/today/${username.stars}`)
                     .then(res => res.json())
                     .then(json => {
-                        var date = new moment(json.date);
+                        const date = new moment(json.date);
 
                         bot.sendMessage({
                             to: channelID,
                             message: `Hello ${username.name}, here is ${star}'s horoscope for today!
                             \nIt's ${date.format("dddd, MMMM Do YYYY")}. ${json['horoscope']}`
                         });
-                })
-                
+                    })
+
                 break;
             // !translate "chinese"
             case 'translate':
-                if(original == null){
-                    returnmessage = 'Need more parameters'
+                if(!original) {
+                    return bot.sendMessage({
+                        to: channelID,
+                        message: "Need more parameters"
+                    });
                 }
-                else{                    
-                    var text = original;
-                    detectLanguage(text).then(lang => {
-                        console.log("Lang: " + lang)
-                        if (lang == undefined) {
-                            bot.sendMessage({
-                                to: channelID,
-                                message: "Error when detecting language"
-                            });
-                        }
-                        else if (lang == "en") {
+
+                const text = original;
+
+                detectLanguage(text).then(lang => {
+                    console.log(`Lang: ${lang}`);
+
+                    if(!lang) {
+                        bot.sendMessage({
+                            to: channelID,
+                            message: "Error when detecting language"
+                        });
+                    } else if (lang == "en") {
                             //if input is english then translate into Chinese
                             googleTranslate.translate(text, 'zh-cn', function(err, translation) {
-                                var returnmessage = ("Chinese :>",translation.translatedText);
+                              if(err)
+                                  console.log(err);
+                              
+                              var returnmessage = ("Chinese :>",translation.translatedText);
                                   bot.sendMessage({
                                       to: channelID,
                                       message: returnmessage
@@ -127,6 +131,8 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                         else {
                             // translate any other language into English
                             googleTranslate.translate(text, 'en', function(err, translation) {
+                                if(err)
+                                    console.log(err);
                                 var returnmessage = ("English :>",translation.translatedText);
                                   bot.sendMessage({
                                       to: channelID,
@@ -137,31 +143,31 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     });
 	
                 }
-                
                 break;
             // Just add any case commands if you want to..
-         }
-     }else{
-        if(message.includes('sophie-bot')){
-             bot.sendMessage({
-                    to: channelID,
-                    message: 'Did you ask for a bot? Here I am!'
-                });
-         }
-     }
+        }
+    } else {
+        if(message.includes('sophie-bot')) {
+            bot.sendMessage({
+                to: channelID,
+                message: 'Did you ask for a bot? Here I am!'
+            });
+        }
+    }
 });
 
 // Detects the language. "text" can be a string for detecting the language of
 // a single piece of text, or an array of strings for detecting the languages
 // of multiple texts.
 async function detectLanguage(text) {
-    console.log("created a client")
+    console.log("created a client");
+
     let [detections] = await translateClient.detect(text);
-    console.log("finished client")
+
+    console.log("finished client");
+
     detections = Array.isArray(detections) ? detections : [detections];
-    
-    if (detections.length > 0) {
-        return detections[0].language; //return the most detected language 
-    }
-    return undefined;
+
+    if(detections.length > 0)
+        return detections[0].language; //return the most detected language
 }
