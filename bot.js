@@ -81,7 +81,7 @@ bot.on('message', (user, userID, channelID, message) => {
 
                         bot.sendMessage({
                             to: channelID,
-                            message: `Hello ${username.name}, here is ${star}'s horoscope for today!
+                            message: `Hello ${username.name}, here is ${username.stars}'s horoscope for today!
                             \nIt's ${date.format("dddd, MMMM Do YYYY")}. ${json['horoscope']}`
                         });
                     })
