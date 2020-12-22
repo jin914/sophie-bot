@@ -75,7 +75,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                         var date = d.toLocaleDateString("en-US", options); 
                         bot.sendMessage({
                             to: channelID,
-                            message: `Hello ${username.name}, here is today's horoscope for ${star}s!
+                            message: `Hello ${username.name}, here is today's horoscope for ${star}!
                             \nIt's ${date}. ${json['horoscope']}`
                         });
                 })
