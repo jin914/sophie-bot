@@ -7,13 +7,15 @@ import gt from 'google-translate';
 import gtClass from '@google-cloud/translate';
 import moment from 'moment';
 
-const discord_auth = JSON.parse(fs.readFileSync('./auth.json', 'utf8'));
+const credentials = JSON.parse(fs.readFileSync('./auth.json', 'utf8'));
+const discord_auth = { token: credentials.token };
+const googleApiKey = credentials.googleApiKey;
 
 const Translate = gtClass.v2.Translate;
-const api = "";
-const googleTranslate = gt(api);
+const googleTranslate = gt(googleApiKey);
 const projectID = "sapient-notch-272806";
 const translateClient = new Translate({key: api, projectID: projectID});
+
 
 var users = [{ 'name': 'buiisabella', 'stars': 'pisces', 'birthday': 'February 21' },
             { 'name': 'maddymq', 'stars': 'pisces', 'birthday': 'March 11' },
