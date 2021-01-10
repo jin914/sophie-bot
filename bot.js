@@ -36,6 +36,7 @@ bot.on('ready', _ => {
     console.log("Connected");
     console.log("Logged in as:");
     console.log(`${bot.username} - (${bot.id})`);
+    /* There is no secret :) */
 });
 
 bot.on('message', (user, userID, channelID, message) => {
@@ -86,6 +87,12 @@ bot.on('message', (user, userID, channelID, message) => {
                         });
                     })
 
+                break;
+            case 'secret':
+                bot.sendMessage({
+                    to: channelID,
+                    message: 'If you want to hear a secret, come visit me in bot.js on line 39 :)'
+                });
                 break;
             // !translate "chinese"
             case 'translate':
