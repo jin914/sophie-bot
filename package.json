@@ -10,7 +10,7 @@
         "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
         "fetch": "^1.1.0",
         "google-translate": "^3.0.0",
-        "moment": "^2.29.1",
+        "moment": "^2.29.2",
         "node-fetch": "^2.6.1"
     }
 }
